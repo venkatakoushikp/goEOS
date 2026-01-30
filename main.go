@@ -1,9 +1,7 @@
 package main
 
 import (
-	_ "encoding/json"
 	"log"
-
 	"github.com/venkatakoushikp/goEOS/utils"
 )
 
@@ -14,20 +12,19 @@ func main (){
 	}
 	defer Client.Close()
 	commands := []string{
-		"show version |json",
-		"show lldp Neighbor",
+		"show hostname",
 	}
-	result := utils.Show(commands, Client)
-	log.Println(err)
-
-	for k,v := range result {
-		log.Println(k)
-		log.Println(v)
-		log.Println("====================")
+	confg := []string{
+		"hostname LP710",
 	}
-
-
-
+	result, _ := utils.Show(commands, Client)
+	log.Println(result["show hostname | json"]["hostname"])
+	err = utils.Config(confg, Client)
+	if err!=nil{
+		log.Println(err)
+	}
+	result, _ = utils.Show(commands, Client)
+	log.Println(result["show hostname | json"]["hostname"])
 
 
 }

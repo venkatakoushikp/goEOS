@@ -1,13 +1,13 @@
 // Use this only when you wish to run some show commands
-
 // Give a slice of all the commands that you wish to run
-
 // Parse the inputs first and check if you can add json at the end and based on the number of commands, create a new slice of maps ( result) to return
 
 package utils
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"strings"
 
@@ -17,7 +17,8 @@ import (
 func normalizeCommands( commands []string) ( commands_parsed []string){
 	// Ensure that all the commands return a json output. If | json is not included in the show command, add it!!
 	for _, cmd := range commands {
-		if strings.HasPrefix( cmd, "show"){
+		cmd = strings.TrimSpace(cmd)
+		if strings.HasPrefix( cmd, "show"){     // Current implementation expects the command to start with the word "show", ["sh", "sho] are not valid for now!
 			if strings.HasSuffix(cmd, "| json") || strings.HasSuffix(cmd, "|json"){
 				commands_parsed = append(commands_parsed, cmd)
 			}else{
@@ -30,7 +31,7 @@ func normalizeCommands( commands []string) ( commands_parsed []string){
 	return
 }
 
-func Show( commands []string , Client *ssh.Client) (map[string]map[string]interface{}){
+func Show( commands []string , Client *ssh.Client) (map[string]map[string]interface{}, error){
 	
 	// Run show commands (ONLY!!)
 	// For Config commands, we would need to maintain a session and run all the commmands
@@ -45,9 +46,11 @@ func Show( commands []string , Client *ssh.Client) (map[string]map[string]interf
 		)
 		sess, err := Client.NewSession()
 		if err!=nil{
-			log.Panicln("Error while creating a new session:", err)
+			log.Println("Error while creating a new session:", err)
+			return nil, err
 		}
 		defer sess.Close()
+
 
 		output,err := sess.CombinedOutput(command)
 		if err!=nil{
@@ -56,12 +59,14 @@ func Show( commands []string , Client *ssh.Client) (map[string]map[string]interf
 		}
 		err = json.Unmarshal(output, &data)
 		if err!=nil{
-			log.Fatalln("Error while Converting the output to json :", err)
+			log.Println("Error while Converting the output to json :", err)
+			ErrorToReport := fmt.Sprintf(" Error while Converting output of %s to json", err)
+			return nil, errors.New(ErrorToReport)
 		}
 		result[command] = data		
 
 	}
-	return result
+	return result,nil
 
 
 }
