@@ -1,26 +1,41 @@
 package main
 
 import (
+	_ "encoding/json"
 	"log"
+
 	"github.com/venkatakoushikp/goEOS/utils"
 )
 
 func main (){
-	Client, err := utils.Connect("admin", "admin", "10.18.175.160:22", "tcp")
+	Client, err := utils.Connect("admin", "", "10.85.128.51:22", "tcp")
 	if err!=nil{
-		log.Println("Error ::", err)
+		log.Fatalln("Error ::", err)
 	}
 	defer Client.Close()
+	commands := []string{
+		"show version",
+		"show lldp Neighbor",
+	}
+	result := utils.Show(commands, Client)
 
-	sess, err := Client.NewSession()
-	if err!=nil{
-		log.Println("Error ::", err)
+	for k,v := range result {
+		log.Println(k)
+		log.Println(v)
+		log.Println("====================")
 	}
-	defer sess.Close()
-	output, err := sess.CombinedOutput("show version | json")
-	if err!=nil{
-		log.Println("Error ::", err)
-	}
-	log.Println(string(output))
+
+//	var data map[string]interface{}
+//
+//	err = json.Unmarshal(output, &data)
+//	if err!=nil{
+//		log.Fatalln(err)
+//	}
+//
+//	log.Println(data["modelName"])
+
+
 
 }
+
+

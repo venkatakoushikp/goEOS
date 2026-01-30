@@ -36,14 +36,11 @@ func Connect(
 
 	Conn, err := ssh.Dial(
 		Conn_type ,   
-		IP_port, 			// Make sure that port number is added here.
+		IP_port, 	// Make sure that port number is added here.
 		conf,
 	)
-
 	if err!=nil {
 		return nil, err
 	}
-
 	return Conn, nil
-
 }
