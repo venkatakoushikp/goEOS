@@ -14,10 +14,11 @@ func main (){
 	}
 	defer Client.Close()
 	commands := []string{
-		"show version",
+		"show version |json",
 		"show lldp Neighbor",
 	}
 	result := utils.Show(commands, Client)
+	log.Println(err)
 
 	for k,v := range result {
 		log.Println(k)
@@ -25,14 +26,7 @@ func main (){
 		log.Println("====================")
 	}
 
-//	var data map[string]interface{}
-//
-//	err = json.Unmarshal(output, &data)
-//	if err!=nil{
-//		log.Fatalln(err)
-//	}
-//
-//	log.Println(data["modelName"])
+
 
 
 
