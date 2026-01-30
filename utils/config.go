@@ -24,13 +24,15 @@ func singleString(commands []string) (string) {
 	// ssh.CombinedOutput() expects a string. However we need to maintain the session to be able to run multiple commands.
 	// Hence we append everything into a single strinf and then return it to be used as command.
 
-	
+
 	var result string = "enable\nconfig\n"
 	return result+strings.Join(commands, "\n")
 }
 
 
 func Config(Commands []string, Client *ssh.Client) (error){
+
+	
 
 	session, err := Client.NewSession()
 	if err !=nil {
