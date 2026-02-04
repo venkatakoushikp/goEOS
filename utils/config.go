@@ -48,3 +48,13 @@ func Config(Commands []string, Client *ssh.Client) (error){
 
 
 }
+
+
+func CreateConfigSession ():
+/*
+
+Creates a new config session where the config commands are run.
+If there are no errors, commit the session
+If there are error, throw those errors 
+
+*/
