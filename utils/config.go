@@ -12,6 +12,7 @@ Directly specify the config that has to be pushed.
 package utils
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
@@ -22,9 +23,12 @@ import (
 )
 
 const (
-	CommandsNeeded = "enable\nconfigure terminal\n+configure session goEOS-1493101506"
+	CommandsNeeded = "enable\nconfigure terminal\n"
 )
 
+var(
+	configSession = "goEOS-"+strconv.Itoa(rand.Intn( int(math.Pow(2,31)-1) ))
+)
 
 func commandParser(commands []string) (string) {
 
@@ -34,10 +38,10 @@ func commandParser(commands []string) (string) {
 	// Also makes sure a new config session is created and the command is run within that session.
 	// If any errors are thrown, just exit the config session 
 	// If not errors, commit the config session.
-
-	configSession := "configure session goEOS-" + strconv.Itoa(rand.Intn( int(math.Pow(2,31)-1) ))
-	log.Println("Config Session Created :", configSession)
-	commands = append(commands, configSession)
+	
+	configSessionCmd := "configure session "+configSession
+	log.Println("Config Session Created :", configSessionCmd)
+	commands = append(commands, configSessionCmd)
 	return CommandsNeeded+strings.Join(commands, "\n")
 
 }
@@ -49,17 +53,18 @@ func Config(Commands []string, Client *ssh.Client) (error){
 	if err !=nil {
 		log.Println("Error while creating a new session :", err)
 	}
-
+	defer session.Close()
 	_, err = session.CombinedOutput(commandParser(Commands))
 	if err!=nil{
+		session, _ := Client.NewSession()
+		defer session.Close()
+		_, _ = session.CombinedOutput(fmt.Sprintf("%sconfigure session %s abort",CommandsNeeded, configSession))
 		return err
 	}
-
+	session,_ = Client.NewSession()
+	defer session.Close()
+	_, _ = session.CombinedOutput(fmt.Sprintf("%sconfigure session %s commit",CommandsNeeded, configSession))
 	return nil
 
-
-}
-
-func validateSession() {
 
 }
